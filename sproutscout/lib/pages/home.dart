@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:sproutscout/helpers/boxes.dart';
 import 'package:sproutscout/models/plant.dart';
 import 'package:sproutscout/pages/plant_details.dart';
 
@@ -115,12 +116,12 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> _addPlant(String name) async {
+  Future<void> _addPlant(String name, int selectedPlantTypeIndex) async {
     final newPlant = Plant(
       name: name,
       lastWetTime: DateTime.now(),
       isMoistureHigh: false,
-      plantTypeIndex: 0,
+      plantTypeIndex: selectedPlantTypeIndex,
     );
     await plantBox.add(newPlant);
     setState(() {}); // Refreshes the UI to display the new plant
@@ -129,25 +130,60 @@ class HomePageState extends State<HomePage> {
   void _showAddPlantDialog() {
     final plantNameController = TextEditingController();
 
+    // Retrieve plant types from the box
+    final List<String> plantTypes = Boxes.getPlantTypes().values
+        .map((plantType) => plantType.name)
+        .toList();
+    int selectedPlantTypeIndex = 0; // Default to the first type
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text('Add Plant'),
-          content: TextField(
-            controller: plantNameController,
-            decoration: const InputDecoration(
-              labelText: 'Name your plant!',
-              labelStyle: TextStyle(color: Colors.grey),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.green),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: plantNameController,
+                decoration: const InputDecoration(
+                  labelText: 'Name your plant!',
+                  labelStyle: TextStyle(color: Colors.grey),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.green),
+                  ),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  floatingLabelStyle: TextStyle(color: Colors.green),
+                ),
+                style: const TextStyle(color: Colors.black),
               ),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey),
+              const SizedBox(height: 20),
+              DropdownButtonFormField<int>(
+                value: selectedPlantTypeIndex,
+                items: List<DropdownMenuItem<int>>.generate(
+                  plantTypes.length,
+                  (index) => DropdownMenuItem<int>(
+                    value: index,
+                    child: Text(plantTypes[index]),
+                  ),
+                ),
+                onChanged: (newIndex) {
+                  selectedPlantTypeIndex = newIndex!;
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Select Plant Type',
+                  labelStyle: TextStyle(color: Colors.grey),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.green),
+                  ),
+                ),
               ),
-              floatingLabelStyle: TextStyle(color: Colors.green),
-            ),
-            style: const TextStyle(color: Colors.black),
+            ],
           ),
           actions: [
             TextButton(
@@ -166,7 +202,8 @@ class HomePageState extends State<HomePage> {
               onPressed: () {
                 final plantName = plantNameController.text;
                 if (plantName.isNotEmpty) {
-                  _addPlant(plantName); // Add plant to box
+                  _addPlant(
+                      plantName, selectedPlantTypeIndex); // Pass name and index
                   Navigator.of(context).pop(); // Close the dialog
                 }
               },

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:sproutscout/helpers/boxes.dart';
 import 'package:sproutscout/pages/home.dart';
 
 import 'models/plant.dart';
@@ -11,8 +10,15 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(PlantAdapter());
   Hive.registerAdapter(PlantTypeAdapter());
-  var plantBox = await Hive.openBox<Plant>('plants');
-  await plantBox.clear(); // Clear the box to reset any mismatched data
+  await Hive.openBox<Plant>('plants');
+  var plantTypesBox = await Hive.openBox<PlantType>('plant_types');
+
+  if (plantTypesBox.isEmpty) {
+    await plantTypesBox.add(PlantType(name: 'Cactus', wateringFrequencySeconds: 60 * 60 * 24 * 7));
+    await plantTypesBox.add(PlantType(name: 'Fern', wateringFrequencySeconds: 60 * 60 * 24 * 3));
+    await plantTypesBox.add(PlantType(name: 'Pothos', wateringFrequencySeconds: 60 * 60 * 24 * 5));
+  }
+
   runApp(const MyApp());
 }
 
