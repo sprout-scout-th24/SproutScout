@@ -22,7 +22,7 @@ class HomePageState extends State<HomePage> {
         await http.get(Uri.parse('http://raspberrypi.local:5000/moisture'));
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      bool isMoistureHigh = data['moisture_status'] == 'high';
+      bool isMoistureHigh = data['moisture_status'] == 'Moist soil detected!';
 
       setState(() {
         moistureStatus = data['moisture_status'];
