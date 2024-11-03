@@ -16,7 +16,6 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   String moistureStatus = 'Unknown';
-  final Box<Plant> plantBox = Hive.box<Plant>('plants');
 
   Future<void> fetchMoisture() async {
     final response =
@@ -29,22 +28,15 @@ class HomePageState extends State<HomePage> {
         moistureStatus = data['moisture_status'];
       });
 
-      const plantName = 'Your Plant Name';
+      final plantBox = Boxes.getPlants();
       final currentTime = DateTime.now();
 
       if (plantBox.isNotEmpty) {
-        Plant existingPlant = plantBox.getAt(0)!;
-        existingPlant.lastWetTime = currentTime;
-        existingPlant.isMoistureHigh = isMoistureHigh;
-        plantBox.putAt(0, existingPlant);
-      } else {
-        Plant newPlant = Plant(
-          name: plantName,
-          lastWetTime: currentTime,
-          isMoistureHigh: isMoistureHigh,
-          plantTypeIndex: 0,
-        );
-        await plantBox.add(newPlant);
+        for (int i = 0; i < plantBox.length; i++) {
+          Plant existingPlant = plantBox.getAt(i)!;
+          existingPlant.lastWetTime = currentTime;
+          existingPlant.isMoistureHigh = isMoistureHigh;
+        }
       }
     } else {
       throw Exception('Failed to load moisture data');
@@ -54,7 +46,6 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    fetchMoisture(); // Initial fetch on start
   }
 
   @override
@@ -124,7 +115,7 @@ class HomePageState extends State<HomePage> {
       isMoistureHigh: false,
       plantTypeIndex: selectedPlantTypeIndex,
     );
-    await plantBox.add(newPlant);
+    await Boxes.getPlants().add(newPlant);
     setState(() {}); // Refreshes the UI to display the new plant
   }
 
