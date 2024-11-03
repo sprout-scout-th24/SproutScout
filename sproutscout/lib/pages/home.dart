@@ -22,42 +22,52 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   String moistureStatus = 'Unknown';
-  Map<int, Timer?> plantTimers = {};
 
   Future<void> fetchMoisture() async {
-    final response =
-        await http.get(Uri.parse('http://raspberrypi.local:5000/moisture'));
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      bool isMoistureHigh = data['moisture_status'] == 'Moist soil detected!';
+  final response =
+      await http.get(Uri.parse('http://raspberrypi.local:5000/moisture'));
+  
+  if (response.statusCode == 200) {
+    final data = json.decode(response.body);
 
-      setState(() {
-        moistureStatus = data['moisture_status'];
-      });
+    bool isMoistureHigh = data['moisture_status'] == 'Moist soil detected!';
+    DateTime lastTransitionTime = DateTime.parse(data['last_transition_time']);
 
-      final plantBox = Boxes.getPlants();
-      final currentTime = DateTime.now();
+    setState(() {
+      moistureStatus = data['moisture_status'];
+    });
 
-      if (plantBox.isNotEmpty) {
-        for (int i = 0; i < plantBox.length; i++) {
-          Plant existingPlant = plantBox.getAt(i)!;
-          existingPlant.lastWetTime = currentTime;
-          existingPlant.isMoistureHigh = isMoistureHigh;
-          int index = existingPlant.plantTypeIndex != null ? existingPlant.plantTypeIndex! : 0;
+    final plantBox = Boxes.getPlants();
+    final currentTime = DateTime.now();
 
-          // If moisture status changes from low to high, start a timer for notifications
-          if (existingPlant.isMoistureHigh) {
-            requestNotificationPermission();
- // Replace with your plant type duration logic
-            final wateringFrequency = Boxes.getPlantTypes().getAt(index)?.wateringFrequencySeconds ?? 0;
-            await scheduleNotification(existingPlant.name, wateringFrequency);
-          }
+    if (plantBox.isNotEmpty) {
+      for (int i = 0; i < plantBox.length; i++) {
+        Plant existingPlant = plantBox.getAt(i)!;
+        existingPlant.lastWetTime = currentTime;
+        existingPlant.isMoistureHigh = isMoistureHigh;
+
+        int index = existingPlant.plantTypeIndex ?? 0;
+
+        // Update last transition time if needed
+        existingPlant.lastWetTime = lastTransitionTime;
+
+        // If moisture status changes from low to high, start a timer for notifications
+        if (existingPlant.isMoistureHigh) {
+          requestNotificationPermission();
+
+          // Replace with your plant type duration logic
+          final wateringFrequency = Boxes.getPlantTypes()
+              .getAt(index)
+              ?.wateringFrequencySeconds ?? 0;
+
+          await scheduleNotification(existingPlant.name, wateringFrequency);
         }
       }
-    } else {
-      throw Exception('Failed to load moisture data');
     }
+  } else {
+    throw Exception('Failed to load moisture data');
   }
+}
 
   @override
   void initState() {
