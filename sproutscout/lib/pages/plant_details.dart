@@ -1,5 +1,6 @@
 // pages/plant_detail_page.dart
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:sproutscout/helpers/boxes.dart';
 import '../models/plant.dart'; // Adjust the import according to your file structure
 
@@ -15,6 +16,8 @@ class PlantDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final DateFormat dateFormat = DateFormat('MM/d/y').add_jm();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(plant.name),
@@ -30,7 +33,7 @@ class PlantDetailPage extends StatelessWidget {
               decoration: InputDecoration(labelText: 'Plant Name'),
             ),
             SizedBox(height: 16),
-            Text('Last Watered: ${plant.lastWetTime}', style: TextStyle(fontSize: 18)),
+            Text('Last Watered: ${dateFormat.format(plant.lastWetTime)}', style: TextStyle(fontSize: 18)),
             SizedBox(height: 16),
             Text('Moisture Status: ${plant.isMoistureHigh ? "High" : "Low"}', style: TextStyle(fontSize: 18)),
             ElevatedButton(
