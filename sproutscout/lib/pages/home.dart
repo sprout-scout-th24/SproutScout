@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:http/http.dart' as http;
+import 'package:hive_flutter/hive_flutter.dart';
 import 'dart:convert';
-
-import '../models/plant.dart';
-import 'plant_details.dart';
+import 'package:http/http.dart' as http;
+import 'package:sproutscout/models/plant.dart';
+import 'package:sproutscout/pages/plant_details.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,7 +18,7 @@ class HomePageState extends State<HomePage> {
 
   Future<void> fetchMoisture() async {
     final response =
-        await http.get(Uri.parse('http://192.168.187.57:5000/moisture'));
+        await http.get(Uri.parse('http://192.168.28.118:5000/moisture'));
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       bool isMoistureHigh = data['moisture_status'] == 'high';
@@ -47,6 +46,72 @@ class HomePageState extends State<HomePage> {
     } else {
       throw Exception('Failed to load moisture data');
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchMoisture(); // Initial fetch on start
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Sprout Scout'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: fetchMoisture, // Call fetchMoisture on button press
+            tooltip: 'Refresh Moisture Data',
+          ),
+        ],
+      ),
+      body: FutureBuilder<Box<Plant>>(
+        future: Hive.openBox<Plant>('plants'),
+        builder: (context, AsyncSnapshot<Box<Plant>> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No plants added yet!'));
+          }
+
+          final box = snapshot.data!;
+          final plants = box.values.toList();
+
+          return ListView.builder(
+            itemCount: plants.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text(plants[index].name),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PlantDetailPage(
+                        plant: plants[index],
+                        index: index,
+                        onDelete: () {
+                          setState(() {}); // Refresh the ListView
+                        },
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showAddPlantDialog,
+        tooltip: 'Add Plant',
+        backgroundColor: Colors.green[100],
+        foregroundColor: Colors.green[900],
+        child: const Icon(Icons.add),
+      ),
+    );
   }
 
   Future<void> _addPlant(String name) async {
@@ -99,8 +164,8 @@ class HomePageState extends State<HomePage> {
               onPressed: () {
                 final plantName = plantNameController.text;
                 if (plantName.isNotEmpty) {
-                  _addPlant(plantName);
-                  Navigator.of(context).pop();
+                  _addPlant(plantName); // Add plant to box
+                  Navigator.of(context).pop(); // Close the dialog
                 }
               },
               child: const Text('Add'),
@@ -108,63 +173,6 @@ class HomePageState extends State<HomePage> {
           ],
         );
       },
-    );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    fetchMoisture();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Sprout Scout')),
-      body: FutureBuilder<Box<Plant>>(
-        future: Hive.openBox<Plant>('plants'),
-        builder: (context, AsyncSnapshot<Box<Plant>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No plants added yet!'));
-          }
-
-          final box = snapshot.data!;
-          final plants = box.values.toList();
-
-          return ListView.builder(
-            itemCount: plants.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(plants[index].name),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PlantDetailPage(
-                        plant: plants[index],
-                        index: index,
-                        onDelete: () {
-                          setState(() {});
-                        },
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showAddPlantDialog,
-        tooltip: 'Add Plant',
-        backgroundColor: Colors.green[100],
-        foregroundColor: Colors.green[900],
-        child: const Icon(Icons.add),
-      ),
     );
   }
 }
