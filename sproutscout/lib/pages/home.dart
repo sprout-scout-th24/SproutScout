@@ -1,8 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:permission_handler/permission_handler.dart';
+import 'package:timezone/timezone.dart' as tz;
 import 'package:sproutscout/helpers/boxes.dart';
+import 'package:sproutscout/main.dart';
 import 'package:sproutscout/models/plant.dart';
 import 'package:sproutscout/models/plant_type.dart';
 import 'package:sproutscout/pages/plant_details.dart';
@@ -16,36 +22,54 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   String moistureStatus = 'Unknown';
+  Map<int, Timer?> plantTimers = {};
 
   Future<void> fetchMoisture() async {
-    final response =
-        await http.get(Uri.parse('http://raspberrypi.local:5000/moisture'));
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      bool isMoistureHigh = data['moisture_status'] == 'Moist soil detected!';
+    scheduleNotification();
+    // final response =
+    //     await http.get(Uri.parse('http://raspberrypi.local:5000/moisture'));
+    // if (response.statusCode == 200) {
+    //   final data = json.decode(response.body);
+    //   bool isMoistureHigh = data['moisture_status'] == 'Moist soil detected!';
 
-      setState(() {
-        moistureStatus = data['moisture_status'];
-      });
+    //   setState(() {
+    //     moistureStatus = data['moisture_status'];
+    //   });
 
-      final plantBox = Boxes.getPlants();
-      final currentTime = DateTime.now();
+    //   final plantBox = Boxes.getPlants();
+    //   final currentTime = DateTime.now();
 
-      if (plantBox.isNotEmpty) {
-        for (int i = 0; i < plantBox.length; i++) {
-          Plant existingPlant = plantBox.getAt(i)!;
-          existingPlant.lastWetTime = currentTime;
-          existingPlant.isMoistureHigh = isMoistureHigh;
-        }
-      }
-    } else {
-      throw Exception('Failed to load moisture data');
-    }
+    //   if (plantBox.isNotEmpty) {
+    //     for (int i = 0; i < plantBox.length; i++) {
+    //       Plant existingPlant = plantBox.getAt(i)!;
+    //       existingPlant.lastWetTime = currentTime;
+    //       existingPlant.isMoistureHigh = isMoistureHigh;
+
+    //       // If moisture status changes from low to high, start a timer for notifications
+    //       if (existingPlant.isMoistureHigh) {
+    //         requestNotificationPermission();
+
+    //         Duration wateringDuration = const Duration(
+    //             seconds: 10); // Replace with your plant type duration logic
+    //         await scheduleNotification();
+    //       }
+    //     }
+    //   }
+    // } else {
+    //   throw Exception('Failed to load moisture data');
+    // }
   }
 
   @override
   void initState() {
     super.initState();
+
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
+      android:
+          AndroidInitializationSettings('@mipmap/ic_launcher'), // your app icon
+    );
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
   @override
@@ -312,5 +336,57 @@ class HomePageState extends State<HomePage> {
         );
       },
     );
+  }
+}
+
+Future<void> scheduleNotification() async {
+  const AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails(
+    'your_channel_id', // Your channel ID
+    'Your Channel Name',
+    channelDescription: 'Description of your channel',
+    importance: Importance.high,
+    priority: Priority.high,
+    showWhen: false,
+  );
+
+  const NotificationDetails platformChannelSpecifics =
+      NotificationDetails(android: androidPlatformChannelSpecifics);
+
+  var time = tz.TZDateTime.now(tz.local).add(Duration(seconds: 10));
+  print(time);
+
+  // Schedule the notification to trigger after a certain duration
+  await flutterLocalNotificationsPlugin.zonedSchedule(
+    0, // Notification ID
+    'Scheduled Notification Title', // Notification Title
+    'This is a scheduled notification body.', // Notification Body
+    time, // Scheduled time
+    platformChannelSpecifics,
+    uiLocalNotificationDateInterpretation:
+        UILocalNotificationDateInterpretation.absoluteTime, androidScheduleMode: AndroidScheduleMode.exact,
+  );
+
+  print("Notification scheduled");
+}
+
+
+Future<void> requestNotificationPermission() async {
+  var status = await Permission.notification.request();
+  if (status.isGranted) {
+    print("Notification permission granted");
+  } else {
+    print("Notification permission denied");
+  }
+}
+
+Future<void> requestExactAlarmPermission() async {
+  // Request permission
+  var status = await Permission.notification.request();
+
+  if (status.isGranted) {
+    print("Exact alarm permission granted");
+  } else {
+    print("Exact alarm permission denied");
   }
 }
