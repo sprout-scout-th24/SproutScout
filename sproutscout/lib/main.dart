@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -12,10 +11,12 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(PlantAdapter()); // Register your Plant adapter
   await Hive.openBox<Plant>('plants'); // Open a box to store Plant objects
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -23,17 +24,19 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MoistureMonitor(),
+      home: const MoistureMonitor(),
     );
   }
 }
 
 class MoistureMonitor extends StatefulWidget {
+  const MoistureMonitor({super.key});
+
   @override
-  _MoistureMonitorState createState() => _MoistureMonitorState();
+  MoistureMonitorState createState() => MoistureMonitorState();
 }
 
-class _MoistureMonitorState extends State<MoistureMonitor> {
+class MoistureMonitorState extends State<MoistureMonitor> {
   String moistureStatus = 'Unknown';
   final Box<Plant> plantBox = Hive.box<Plant>('plants');
 
@@ -51,7 +54,7 @@ class _MoistureMonitorState extends State<MoistureMonitor> {
       });
 
       // Save or update the plant information
-      final plantName =
+      const plantName =
           'Your Plant Name'; // Replace with the actual plant name or fetch it dynamically
       final currentTime = DateTime.now();
 
@@ -87,33 +90,33 @@ class _MoistureMonitorState extends State<MoistureMonitor> {
   }
 
   void _showAddPlantDialog() {
-    final _plantNameController = TextEditingController();
+    final plantNameController = TextEditingController();
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Add Plant'),
+          title: const Text('Add Plant'),
           content: TextField(
-            controller: _plantNameController,
-            decoration: InputDecoration(hintText: 'Enter plant name'),
+            controller: plantNameController,
+            decoration: const InputDecoration(labelText: 'Name your plant!'),
           ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
-                final plantName = _plantNameController.text;
+                final plantName = plantNameController.text;
                 if (plantName.isNotEmpty) {
                   _addPlant(plantName); // Add plant to box
                   Navigator.of(context).pop(); // Close the dialog
                 }
               },
-              child: Text('Add'),
+              child: const Text('Add'),
             ),
           ],
         );
@@ -130,15 +133,15 @@ class _MoistureMonitorState extends State<MoistureMonitor> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Soil Moisture Monitor')),
+      appBar: AppBar(title: const Text('Sprout Scout')),
       body: FutureBuilder<Box<Plant>>(
         future: Hive.openBox<Plant>('plants'),
         builder: (context, AsyncSnapshot<Box<Plant>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No plants available'));
+            return const Center(child: Text('No plants added yet!'));
           }
 
           final box = snapshot.data!;
@@ -165,7 +168,7 @@ class _MoistureMonitorState extends State<MoistureMonitor> {
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddPlantDialog,
         tooltip: 'Add Plant',
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
