@@ -25,39 +25,38 @@ class HomePageState extends State<HomePage> {
   Map<int, Timer?> plantTimers = {};
 
   Future<void> fetchMoisture() async {
-    scheduleNotification();
-    // final response =
-    //     await http.get(Uri.parse('http://raspberrypi.local:5000/moisture'));
-    // if (response.statusCode == 200) {
-    //   final data = json.decode(response.body);
-    //   bool isMoistureHigh = data['moisture_status'] == 'Moist soil detected!';
+    final response =
+        await http.get(Uri.parse('http://raspberrypi.local:5000/moisture'));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      bool isMoistureHigh = data['moisture_status'] == 'Moist soil detected!';
 
-    //   setState(() {
-    //     moistureStatus = data['moisture_status'];
-    //   });
+      setState(() {
+        moistureStatus = data['moisture_status'];
+      });
 
-    //   final plantBox = Boxes.getPlants();
-    //   final currentTime = DateTime.now();
+      final plantBox = Boxes.getPlants();
+      final currentTime = DateTime.now();
 
-    //   if (plantBox.isNotEmpty) {
-    //     for (int i = 0; i < plantBox.length; i++) {
-    //       Plant existingPlant = plantBox.getAt(i)!;
-    //       existingPlant.lastWetTime = currentTime;
-    //       existingPlant.isMoistureHigh = isMoistureHigh;
+      if (plantBox.isNotEmpty) {
+        for (int i = 0; i < plantBox.length; i++) {
+          Plant existingPlant = plantBox.getAt(i)!;
+          existingPlant.lastWetTime = currentTime;
+          existingPlant.isMoistureHigh = isMoistureHigh;
+          int index = existingPlant.plantTypeIndex != null ? existingPlant.plantTypeIndex! : 0;
 
-    //       // If moisture status changes from low to high, start a timer for notifications
-    //       if (existingPlant.isMoistureHigh) {
-    //         requestNotificationPermission();
-
-    //         Duration wateringDuration = const Duration(
-    //             seconds: 10); // Replace with your plant type duration logic
-    //         await scheduleNotification();
-    //       }
-    //     }
-    //   }
-    // } else {
-    //   throw Exception('Failed to load moisture data');
-    // }
+          // If moisture status changes from low to high, start a timer for notifications
+          if (existingPlant.isMoistureHigh) {
+            requestNotificationPermission();
+ // Replace with your plant type duration logic
+            final wateringFrequency = Boxes.getPlantTypes().getAt(index)?.wateringFrequencySeconds ?? 0;
+            await scheduleNotification(existingPlant.name, wateringFrequency);
+          }
+        }
+      }
+    } else {
+      throw Exception('Failed to load moisture data');
+    }
   }
 
   @override
@@ -339,7 +338,7 @@ class HomePageState extends State<HomePage> {
   }
 }
 
-Future<void> scheduleNotification() async {
+Future<void> scheduleNotification(String plantName, double durationSeconds) async {
   const AndroidNotificationDetails androidPlatformChannelSpecifics =
       AndroidNotificationDetails(
     'your_channel_id', // Your channel ID
@@ -353,14 +352,14 @@ Future<void> scheduleNotification() async {
   const NotificationDetails platformChannelSpecifics =
       NotificationDetails(android: androidPlatformChannelSpecifics);
 
-  var time = tz.TZDateTime.now(tz.local).add(Duration(seconds: 10));
+  var time = tz.TZDateTime.now(tz.local).add(Duration(seconds: durationSeconds.toInt()));
   print(time);
 
   // Schedule the notification to trigger after a certain duration
   await flutterLocalNotificationsPlugin.zonedSchedule(
     0, // Notification ID
-    'Scheduled Notification Title', // Notification Title
-    'This is a scheduled notification body.', // Notification Body
+    '$plantName needs water!', // Notification Title
+    'Its time to water your plant: $plantName', // Notification Body
     time, // Scheduled time
     platformChannelSpecifics,
     uiLocalNotificationDateInterpretation:
