@@ -5,7 +5,7 @@ part 'plant.g.dart';
 @HiveType(typeId: 0) // Unique ID for the adapter
 class Plant {
   @HiveField(0)
-  final String name;
+  late String name;
 
   @HiveField(1)
   DateTime lastWetTime;
