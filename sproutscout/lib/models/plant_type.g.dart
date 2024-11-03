@@ -1,41 +1,35 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'plant.dart';
+part of 'plant_type.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class PlantAdapter extends TypeAdapter<Plant> {
+class PlantTypeAdapter extends TypeAdapter<PlantType> {
   @override
   final int typeId = 0;
 
   @override
-  Plant read(BinaryReader reader) {
+  PlantType read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Plant(
+    return PlantType(
       name: fields[0] as String,
-      lastWetTime: fields[1] as DateTime,
-      isMoistureHigh: fields[2] as bool,
-      plantType: fields[3] as PlantType,
+      wateringFrequency: fields[1] as Duration,
     );
   }
 
   @override
-  void write(BinaryWriter writer, Plant obj) {
+  void write(BinaryWriter writer, PlantType obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(2)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.lastWetTime)
-      ..writeByte(2)
-      ..write(obj.isMoistureHigh)
-      ..writeByte(3)
-      ..write(obj.plantType);
+      ..write(obj.wateringFrequency);
   }
 
   @override
@@ -44,7 +38,7 @@ class PlantAdapter extends TypeAdapter<Plant> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is PlantAdapter &&
+      other is PlantTypeAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

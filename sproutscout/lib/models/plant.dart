@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import '../models/plant_type.dart';
 
 part 'plant.g.dart';
 
@@ -13,9 +14,13 @@ class Plant {
   @HiveField(2)
   bool isMoistureHigh;
 
+  @HiveField(3)
+  PlantType plantType;
+
   Plant({
     required this.name,
     required this.lastWetTime,
     required this.isMoistureHigh,
+    required this.plantType
   });
 }
