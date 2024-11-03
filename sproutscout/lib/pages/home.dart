@@ -273,7 +273,7 @@ class HomePageState extends State<HomePage> {
                 keyboardType: TextInputType.number,
                 controller: frequencyController,
                 decoration: const InputDecoration(
-                  labelText: 'Enter the watering frequency',
+                  labelText: 'Enter the watering frequency (in seconds)',
                   labelStyle: TextStyle(color: Colors.grey),
                   focusedBorder: UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.green),
@@ -283,6 +283,7 @@ class HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
+              const SizedBox(height: 10),
             ],
           ),
           actions: [
