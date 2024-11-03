@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Moisture Monitor',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.green,
       ),
       home: const MoistureMonitor(),
     );
@@ -103,12 +103,18 @@ class MoistureMonitorState extends State<MoistureMonitor> {
           ),
           actions: [
             TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red[900],
+              ),
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
               child: const Text('Cancel'),
             ),
             TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.green[900],
+              ),
               onPressed: () {
                 final plantName = plantNameController.text;
                 if (plantName.isNotEmpty) {
@@ -168,6 +174,8 @@ class MoistureMonitorState extends State<MoistureMonitor> {
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddPlantDialog,
         tooltip: 'Add Plant',
+        backgroundColor: Colors.green[100],
+        foregroundColor: Colors.green[900],
         child: const Icon(Icons.add),
       ),
     );
