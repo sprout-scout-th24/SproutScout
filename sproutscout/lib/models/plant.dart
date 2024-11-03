@@ -13,6 +13,9 @@ class Plant {
   @HiveField(2)
   bool isMoistureHigh;
 
+  @HiveField(3)
+  String? monitorIp;
+
   Plant({
     required this.name,
     required this.lastWetTime,

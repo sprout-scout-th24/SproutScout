@@ -20,19 +20,21 @@ class PlantAdapter extends TypeAdapter<Plant> {
       name: fields[0] as String,
       lastWetTime: fields[1] as DateTime,
       isMoistureHigh: fields[2] as bool,
-    );
+    )..monitorIp = fields[3] as String?;
   }
 
   @override
   void write(BinaryWriter writer, Plant obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
       ..write(obj.lastWetTime)
       ..writeByte(2)
-      ..write(obj.isMoistureHigh);
+      ..write(obj.isMoistureHigh)
+      ..writeByte(3)
+      ..write(obj.monitorIp);
   }
 
   @override
