@@ -53,8 +53,8 @@ class PlantDetailPage extends StatelessWidget {
                 onDelete(); // Notify the parent about the deletion
                 Navigator.of(context).pop();
               },
-              child: Icon(Icons.delete),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red[50]),
+              child: Icon(Icons.delete, color: Colors.red),
             )
           ],
         ),
