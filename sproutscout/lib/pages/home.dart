@@ -40,6 +40,7 @@ class HomePageState extends State<HomePage> {
           name: plantName,
           lastWetTime: currentTime,
           isMoistureHigh: isMoistureHigh,
+          plantTypeIndex: 0,
         );
         await plantBox.add(newPlant);
       }
@@ -119,6 +120,7 @@ class HomePageState extends State<HomePage> {
       name: name,
       lastWetTime: DateTime.now(),
       isMoistureHigh: false,
+      plantTypeIndex: 0,
     );
     await plantBox.add(newPlant);
     setState(() {}); // Refreshes the UI to display the new plant

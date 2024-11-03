@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:sproutscout/helpers/boxes.dart';
 import 'package:sproutscout/pages/home.dart';
 
 import 'models/plant.dart';
+import 'models/plant_type.dart'; // Import the library that defines PlantTypeAdapter
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-  Hive.registerAdapter(PlantAdapter()); // Register your Plant adapter
-  await Hive.openBox<Plant>('plants'); // Open a box to store Plant objects
+  Hive.registerAdapter(PlantAdapter());
+  Hive.registerAdapter(PlantTypeAdapter());
+  var plantBox = await Hive.openBox<Plant>('plants');
+  await plantBox.clear(); // Clear the box to reset any mismatched data
   runApp(const MyApp());
 }
 

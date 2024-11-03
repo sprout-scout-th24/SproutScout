@@ -20,7 +20,7 @@ class PlantAdapter extends TypeAdapter<Plant> {
       name: fields[0] as String,
       lastWetTime: fields[1] as DateTime,
       isMoistureHigh: fields[2] as bool,
-      plantType: fields[3] as PlantType,
+      plantTypeIndex: fields[3] as int?,
     );
   }
 
@@ -35,7 +35,7 @@ class PlantAdapter extends TypeAdapter<Plant> {
       ..writeByte(2)
       ..write(obj.isMoistureHigh)
       ..writeByte(3)
-      ..write(obj.plantType);
+      ..write(obj.plantTypeIndex);
   }
 
   @override

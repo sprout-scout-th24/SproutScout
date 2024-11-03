@@ -8,7 +8,7 @@ part of 'plant_type.dart';
 
 class PlantTypeAdapter extends TypeAdapter<PlantType> {
   @override
-  final int typeId = 0;
+  final int typeId = 1;
 
   @override
   PlantType read(BinaryReader reader) {
@@ -18,7 +18,7 @@ class PlantTypeAdapter extends TypeAdapter<PlantType> {
     };
     return PlantType(
       name: fields[0] as String,
-      wateringFrequency: fields[1] as Duration,
+      wateringFrequencySeconds: fields[1] as double,
     );
   }
 
@@ -29,7 +29,7 @@ class PlantTypeAdapter extends TypeAdapter<PlantType> {
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.wateringFrequency);
+      ..write(obj.wateringFrequencySeconds);
   }
 
   @override
