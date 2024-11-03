@@ -12,7 +12,7 @@ class PlantDetailPage extends StatelessWidget {
   final TextEditingController nameController; // Controller for editing name
 
   PlantDetailPage(
-      {required this.plant, required this.index, required this.onDelete})
+      {super.key, required this.plant, required this.index, required this.onDelete})
       : nameController = TextEditingController(text: plant.name);
 
   @override
@@ -28,22 +28,27 @@ class PlantDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextField(
               controller: nameController,
-              decoration: InputDecoration(labelText: 'Plant Name'),
+              decoration: const InputDecoration(labelText: 'Plant Name'),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Last Watered on ${dateFormat.format(plant.lastWetTime)}',
-              style: TextStyle(fontSize: 18),
+              style: const TextStyle(fontSize: 18),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Soil Moisture: ${plant.isMoistureHigh ? "High" : "Low"}',
-              style: TextStyle(fontSize: 18),
+              style: const TextStyle(fontSize: 18),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
+            Text(
+              'Plant Type: ${Boxes.getPlantTypes().getAt(plant.plantTypeIndex!)!.name}',
+              style: const TextStyle(fontSize: 18),
+            ),            
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment
                   .start, // Align buttons to the start of the row
@@ -61,9 +66,9 @@ class PlantDetailPage extends StatelessWidget {
                     backgroundColor: Colors.green[50],
                     foregroundColor: Colors.green,
                   ),
-                  child: Text('Save Changes'),
+                  child: const Text('Save Changes'),
                 ),
-                SizedBox(width: 8), // Space between the buttons
+                const SizedBox(width: 8), // Space between the buttons
                 ElevatedButton(
                   onPressed: () async {
                     // Show a confirmation dialog
@@ -71,8 +76,8 @@ class PlantDetailPage extends StatelessWidget {
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: Text('Confirm Delete'),
-                          content: Text(
+                          title: const Text('Confirm Delete'),
+                          content: const Text(
                               'Are you sure you want to delete this plant?'),
                           actions: [
                             TextButton(
@@ -80,7 +85,7 @@ class PlantDetailPage extends StatelessWidget {
                                 Navigator.of(context)
                                     .pop(false); // Return false when canceled
                               },
-                              child: Text('Cancel',
+                              child: const Text('Cancel',
                               style: TextStyle(color: Colors.grey)),
                             ),
                             TextButton(
@@ -88,7 +93,7 @@ class PlantDetailPage extends StatelessWidget {
                                 Navigator.of(context)
                                     .pop(true); // Return true to confirm delete
                               },
-                              child: Text('Confirm',
+                              child: const Text('Confirm',
                                   style: TextStyle(color: Colors.red)),
                             ),
                           ],
@@ -105,7 +110,7 @@ class PlantDetailPage extends StatelessWidget {
                   },
                   style:
                       ElevatedButton.styleFrom(backgroundColor: Colors.red[50]),
-                  child: Icon(Icons.delete, color: Colors.red),
+                  child: const Icon(Icons.delete, color: Colors.red),
                 ),
               ],
             ),
