@@ -98,13 +98,25 @@ class MoistureMonitorState extends State<MoistureMonitor> {
         return AlertDialog(
           title: const Text('Add Plant'),
           content: TextField(
+            strutStyle: StrutStyle.disabled,
             controller: plantNameController,
-            decoration: const InputDecoration(labelText: 'Name your plant!'),
+            decoration: const InputDecoration(
+              labelText: 'Name your plant!',
+              labelStyle: TextStyle(color: Colors.grey),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.green),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey),
+              ),
+              floatingLabelStyle: TextStyle(color: Colors.green),
+            ),
+            style: const TextStyle(color: Colors.black),
           ),
           actions: [
             TextButton(
               style: TextButton.styleFrom(
-                foregroundColor: Colors.red[900],
+                foregroundColor: Colors.red[600],
               ),
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
@@ -113,7 +125,7 @@ class MoistureMonitorState extends State<MoistureMonitor> {
             ),
             TextButton(
               style: TextButton.styleFrom(
-                foregroundColor: Colors.green[900],
+                foregroundColor: Colors.green[600],
               ),
               onPressed: () {
                 final plantName = plantNameController.text;
