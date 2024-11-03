@@ -18,7 +18,7 @@ class HomePageState extends State<HomePage> {
 
   Future<void> fetchMoisture() async {
     final response =
-        await http.get(Uri.parse('http://192.168.28.118:5000/moisture'));
+        await http.get(Uri.parse('http://raspberrypi.local:5000/moisture'));
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       bool isMoistureHigh = data['moisture_status'] == 'high';
