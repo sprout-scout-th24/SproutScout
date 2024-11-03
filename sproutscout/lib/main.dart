@@ -148,7 +148,7 @@ class MoistureMonitorState extends State<MoistureMonitor> {
     fetchMoisture(); // Fetch data initially
   }
 
-  @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Sprout Scout')),
@@ -169,16 +169,22 @@ class MoistureMonitorState extends State<MoistureMonitor> {
             itemCount: plants.length,
             itemBuilder: (context, index) {
               return ListTile(
-                  title: Text(plants[index].name),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            PlantDetailPage(plant: plants[index]),
+                title: Text(plants[index].name),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PlantDetailPage(
+                        plant: plants[index],
+                        index: index,
+                        onDelete: () {
+                          setState(() {}); // Refresh the ListView
+                        },
                       ),
-                    );
-                  });
+                    ),
+                  );
+                },
+              );
             },
           );
         },

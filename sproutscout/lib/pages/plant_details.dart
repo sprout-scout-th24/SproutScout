@@ -1,14 +1,16 @@
 // pages/plant_detail_page.dart
 import 'package:flutter/material.dart';
+import 'package:sproutscout/helpers/boxes.dart';
 import '../models/plant.dart'; // Adjust the import according to your file structure
-import 'package:hive/hive.dart';
+
 
 class PlantDetailPage extends StatelessWidget {
   final Plant plant;
-  final Box<Plant> plantBox;
   final int index;
+  final Function onDelete; // Callback for deletion
+  final plantBox = Boxes.getPlants();
 
-  PlantDetailPage({required this.plant, required this.plantBox, required this.index});
+  PlantDetailPage({required this.plant, required this.index, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +30,10 @@ class PlantDetailPage extends StatelessWidget {
             Text('Moisture Status: ${plant.isMoistureHigh ? "High" : "Low"}',
                 style: TextStyle(fontSize: 18)),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 // Delete the plant from the box
-                plantBox.deleteAt(index);
+                await deletePlantAtIndex(index);
+                onDelete(); // Notify the parent about the deletion
                 Navigator.of(context).pop();
               },
               child: Icon(Icons.delete),
@@ -40,5 +43,12 @@ class PlantDetailPage extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+Future deletePlantAtIndex(int index) async {
+  var box = Boxes.getPlants();
+  if (index >= 0 && index < box.length) { // Check if the index is valid
+    await box.deleteAt(index); // Deletes the plant at the specified index
   }
 }
